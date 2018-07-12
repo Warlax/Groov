@@ -1,3 +1,13 @@
 <resources>
   <string name="app_name">Groov</string>
+  <string name="today">today</string>
+  <string name="did_button_template">+%d reps</string>
+  <string name="did_different_reps">&lt;u&gt;Add different number of reps&lt;/u&gt;</string>
+  <string name="no_sets_yet">No reps yet</string>
+  <string name="last_set_template">Last set: %d reps / %s</string>
+  <string name="ok">Okay</string>
+  <string name="cancel">Cancel</string>
+  <string name="error_less_than_one_rep">Sorry, cannot do less than one rep.</string>
+  <string name="hint_reps">Reps</string>
+  <string name="reps_added">💪 %d reps added! 💪</string>
 </resources>
