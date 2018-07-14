@@ -24,12 +24,12 @@ public class GroovViewModel extends AndroidViewModel {
 
   public LiveData<Integer> repsToday() {
     MediatorLiveData<Integer> mediator = new MediatorLiveData<>();
-    mediator.addSource(repository.repsToday(), reps -> mediator.setValue(reps != null ? reps : 0));
+    mediator.addSource(repository.repsTodayAsLiveData(), reps -> mediator.setValue(reps != null ? reps : 0));
     return mediator;
   }
 
   public LiveData<Optional<RepSet>> mostRecentSet() {
-    return repository.mostRecentSet();
+    return repository.mostRecentSetAsLiveData();
   }
 
   public LiveData<Optional<Boolean>> remind() {
@@ -37,7 +37,7 @@ public class GroovViewModel extends AndroidViewModel {
   }
 
   public void recordSet(int reps) {
-    repository.recordSet(reps);
+    repository.recordCustomSet(reps);
   }
 
   public void setRemind(boolean remind) {

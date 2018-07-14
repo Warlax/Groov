@@ -2,13 +2,13 @@ package calex.groov.model;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.widget.Toast;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -17,14 +17,20 @@ import javax.inject.Singleton;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
+import androidx.work.WorkStatus;
+import calex.groov.R;
 import calex.groov.constant.Keys;
 import calex.groov.data.GroovDatabase;
 import calex.groov.data.RepSet;
+import calex.groov.receiver.GroovAppWidgetProvider;
+import calex.groov.util.GroovUtil;
 import calex.groov.worker.RecordSetWorker;
 
 @Singleton
 public class GroovRepository {
 
+  private final Context context;
   private final GroovDatabase database;
   private final SharedPreferences preferences;
   private final MutableLiveData<Optional<Boolean>> remind;
@@ -32,9 +38,11 @@ public class GroovRepository {
 
   @Inject
   public GroovRepository(
+      Context context,
       GroovDatabase database,
       SharedPreferences preferences,
       WorkManager workManager) {
+    this.context = context;
     this.database = database;
     this.preferences = preferences;
     this.workManager = workManager;
@@ -48,20 +56,58 @@ public class GroovRepository {
         });
   }
 
-  public LiveData<Optional<RepSet>> mostRecentSet() {
-    return database.sets().mostRecent();
+  public LiveData<Optional<RepSet>> mostRecentSetAsLiveData() {
+    return database.sets().mostRecentAsLiveData();
   }
 
-  public LiveData<Integer> repsToday() {
-    return database.sets().totalReps(todayStartTimestamp(), todayEndTimestamp());
+  public LiveData<Integer> repsTodayAsLiveData() {
+    return database.sets().totalRepsAsLiveData(
+        GroovUtil.todayStartTimestamp(), GroovUtil.todayEndTimestamp());
   }
 
-  public void recordSet(int reps) {
-    workManager.enqueue(new OneTimeWorkRequest.Builder(RecordSetWorker.class)
-        .setInputData(new Data.Builder()
-            .putInt(Keys.REPS, reps)
-            .build())
-        .build());
+  public Optional<RepSet> blockingMostRecentSet() {
+    return database.sets().blockingMostRecent();
+  }
+
+  public Integer blockingRepsToday() {
+    return database.sets().blockingTotalReps(
+        GroovUtil.todayStartTimestamp(), GroovUtil.todayEndTimestamp());
+  }
+
+  public void recordDefaultSet() {
+    recordCustomSet(null);
+  }
+
+  public void recordCustomSet(@Nullable Integer reps) {
+    Data.Builder inputDataBuilder = new Data.Builder();
+    if (reps != null) {
+      inputDataBuilder.putInt(Keys.REPS, reps);
+    }
+    WorkRequest workRequest = new OneTimeWorkRequest.Builder(RecordSetWorker.class)
+        .setInputData(inputDataBuilder.build())
+        .build();
+    workManager.enqueue(workRequest);
+    Observer<WorkStatus> observer = new Observer<WorkStatus>() {
+      @Override
+      public void onChanged(@Nullable WorkStatus workStatus) {
+        if (workStatus.getState().isFinished()) {
+          workManager.getStatusById(workStatus.getId()).removeObserver(this);
+
+          Data outputData = workStatus.getOutputData();
+          int repsRecorded = outputData.getInt(Keys.REPS, 0);
+          int repsToday = outputData.getInt(Keys.COUNT, 0);
+
+          Toast.makeText(
+              context,
+              context.getResources().getString(R.string.reps_added, repsRecorded, repsToday),
+              Toast.LENGTH_SHORT)
+              .show();
+
+          GroovAppWidgetProvider.sendUpdate(context, repsRecorded, repsToday);
+        }
+      }
+    };
+    workManager.getStatusById(workRequest.getId()).observeForever(observer);
   }
 
   public void setRemind(boolean remind) {
@@ -74,27 +120,5 @@ public class GroovRepository {
 
   private void updateRemindFromPreferences() {
     remind.setValue(Optional.of(preferences.getBoolean(Keys.REMIND, false)));
-  }
-
-  private static Date todayStartTimestamp() {
-    return Date.from(
-        LocalDateTime
-            .ofInstant(
-                new Date().toInstant(), ZoneId.systemDefault())
-            .with(LocalTime.MIN)
-            .atZone(ZoneId
-                .systemDefault())
-            .toInstant());
-  }
-
-  private static Date todayEndTimestamp() {
-    return Date.from(
-        LocalDateTime
-            .ofInstant(
-                new Date().toInstant(), ZoneId.systemDefault())
-            .with(LocalTime.MAX)
-            .atZone(ZoneId
-                .systemDefault())
-            .toInstant());
   }
 }

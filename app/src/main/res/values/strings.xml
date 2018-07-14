@@ -9,5 +9,5 @@
   <string name="cancel">Cancel</string>
   <string name="error_less_than_one_rep">Sorry, cannot do less than one rep.</string>
   <string name="hint_reps">Reps</string>
-  <string name="reps_added">💪 %d reps added! 💪</string>
+  <string name="reps_added">+%d → %d today 💪</string>
 </resources>

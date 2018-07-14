@@ -2,6 +2,7 @@ package calex.groov.activity;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +14,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.time.Clock;
 import java.util.Locale;
@@ -24,13 +24,16 @@ import javax.inject.Inject;
 
 import calex.groov.R;
 import calex.groov.app.GroovApplication;
+import calex.groov.constant.Constants;
 import calex.groov.data.RepSet;
 import calex.groov.model.GroovRepository;
 import calex.groov.model.GroovViewModel;
 
 public class GroovActivity extends AppCompatActivity {
 
-  private static final int DEFAULT_REPS = 3;
+  public static Intent newIntent(Context context) {
+    return new Intent(context, GroovActivity.class);
+  }
 
   @Inject GroovRepository groovRepository;
   @Inject Clock clock;
@@ -39,7 +42,7 @@ public class GroovActivity extends AppCompatActivity {
   private TextView repCountView;
   private TextView lastSetView;
   private Button didButton;
-  private int reps = DEFAULT_REPS;
+  private int reps = Constants.DEFAULT_REPS;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +68,6 @@ public class GroovActivity extends AppCompatActivity {
 
   private void onDidButtonClicked() {
     viewModel.recordSet(reps);
-    Toast.makeText(this, getString(R.string.reps_added, reps), Toast.LENGTH_SHORT).show();
   }
 
   private void onDifferentRepsButtonClicked() {
@@ -85,7 +87,6 @@ public class GroovActivity extends AppCompatActivity {
           }
           GroovActivity.this.reps = reps;
           viewModel.recordSet(reps);
-          Toast.makeText(this, getString(R.string.reps_added, reps), Toast.LENGTH_SHORT).show();
           hideKeyboard();
         })
         .setNegativeButton(R.string.cancel, (d, i) -> {

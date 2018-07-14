@@ -15,8 +15,14 @@ public interface RepSetDao {
   long insert(RepSet repSet);
 
   @Query("SELECT * FROM repset ORDER BY date DESC LIMIT 1")
-  LiveData<Optional<RepSet>> mostRecent();
+  LiveData<Optional<RepSet>> mostRecentAsLiveData();
+
+  @Query("SELECT * FROM repset ORDER BY date DESC LIMIT 1")
+  Optional<RepSet> blockingMostRecent();
 
   @Query("SELECT SUM(reps) FROM repset WHERE date BETWEEN :start and :end")
-  LiveData<Integer> totalReps(Date start, Date end);
+  LiveData<Integer> totalRepsAsLiveData(Date start, Date end);
+
+  @Query("SELECT SUM(reps) FROM repset WHERE date BETWEEN :start and :end")
+  Integer blockingTotalReps(Date start, Date end);
 }
