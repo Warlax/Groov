@@ -3,8 +3,10 @@ package calex.groov.model;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.service.quicksettings.TileService;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -24,6 +26,7 @@ import calex.groov.constant.Keys;
 import calex.groov.data.GroovDatabase;
 import calex.groov.data.RepSet;
 import calex.groov.receiver.GroovAppWidgetProvider;
+import calex.groov.service.GroovTileService;
 import calex.groov.util.GroovUtil;
 import calex.groov.worker.RecordSetWorker;
 
@@ -104,6 +107,9 @@ public class GroovRepository {
               .show();
 
           GroovAppWidgetProvider.sendUpdate(context, repsRecorded, repsToday);
+
+          TileService.requestListeningState(
+              context, new ComponentName(context, GroovTileService.class));
         }
       }
     };
