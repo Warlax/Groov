@@ -3,7 +3,6 @@ package calex.groov.model;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
 import android.support.annotation.NonNull;
 
 import java.util.Optional;
@@ -23,9 +22,7 @@ public class GroovViewModel extends AndroidViewModel {
   }
 
   public LiveData<Integer> repsToday() {
-    MediatorLiveData<Integer> mediator = new MediatorLiveData<>();
-    mediator.addSource(repository.repsTodayAsLiveData(), reps -> mediator.setValue(reps != null ? reps : 0));
-    return mediator;
+    return repository.repsTodayAsLiveData();
   }
 
   public LiveData<Optional<RepSet>> mostRecentSet() {

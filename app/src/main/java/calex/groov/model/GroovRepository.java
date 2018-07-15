@@ -1,6 +1,7 @@
 package calex.groov.model;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.content.ComponentName;
@@ -37,6 +38,8 @@ public class GroovRepository {
   private final Context context;
   private final GroovDatabase database;
   private final SharedPreferences preferences;
+  private final ChangeableSourceMediatorLiveData<Integer> repsToday;
+  private final ChangeableSourceMediatorLiveData<Optional<RepSet>> mostRecentSet;
   private final MutableLiveData<Optional<Boolean>> remind;
   private final WorkManager workManager;
 
@@ -50,6 +53,9 @@ public class GroovRepository {
     this.database = database;
     this.preferences = preferences;
     this.workManager = workManager;
+    repsToday = new ChangeableSourceMediatorLiveData<>(0);
+    mostRecentSet = new ChangeableSourceMediatorLiveData<>(Optional.empty());
+    onDateChanged();
     remind = new MutableLiveData<>();
     remind.setValue(Optional.empty());
     preferences.registerOnSharedPreferenceChangeListener(
@@ -61,12 +67,11 @@ public class GroovRepository {
   }
 
   public LiveData<Optional<RepSet>> mostRecentSetAsLiveData() {
-    return database.sets().mostRecentAsLiveData();
+    return mostRecentSet;
   }
 
   public LiveData<Integer> repsTodayAsLiveData() {
-    return database.sets().totalRepsAsLiveData(
-        GroovUtil.todayStartTimestamp(), GroovUtil.todayEndTimestamp());
+    return repsToday;
   }
 
   public Optional<RepSet> blockingMostRecentSet() {
@@ -122,7 +127,7 @@ public class GroovRepository {
   }
 
   public void setRemind(boolean remind) {
-    preferences.edit().putBoolean(Keys.REMIND, remind).apply();;
+    preferences.edit().putBoolean(Keys.REMIND, remind).apply();
   }
 
   public LiveData<Optional<Boolean>> remind() {
@@ -133,7 +138,39 @@ public class GroovRepository {
     database.sets().insert(sets);
   }
 
+  public void blockingDeleteMostRecent() {
+    Optional<RepSet> setOptional = blockingMostRecentSet();
+    if (!setOptional.isPresent()) {
+      return;
+    }
+
+    database.sets().delete(setOptional.get());
+  }
+
+  public void onDateChanged() {
+    repsToday.updateSource(database.sets().totalRepsAsLiveData(
+        GroovUtil.todayStartTimestamp(), GroovUtil.todayEndTimestamp()));
+    mostRecentSet.updateSource(database.sets().mostRecentAsLiveData());
+  }
+
   private void updateRemindFromPreferences() {
     remind.setValue(Optional.of(preferences.getBoolean(Keys.REMIND, false)));
+  }
+
+  private static class ChangeableSourceMediatorLiveData<T> extends MediatorLiveData<T> {
+    private final T defaultValue;
+    private LiveData<T> source;
+
+    public ChangeableSourceMediatorLiveData(@Nullable T defaultValue) {
+      this.defaultValue = defaultValue;
+    }
+
+    public void updateSource(LiveData<T> source) {
+      if (this.source != null) {
+        removeSource(this.source);
+      }
+      this.source = source;
+      addSource(source, reps -> setValue(reps != null ? reps : defaultValue));
+    }
   }
 }

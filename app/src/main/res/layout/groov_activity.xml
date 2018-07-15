@@ -31,12 +31,27 @@
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/last_set"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textAllCaps="true"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+      <TextView
+          android:id="@+id/last_set"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textAppearance="?android:attr/textAppearanceSmall"
+          android:textAllCaps="true"/>
+
+      <ImageView
+          android:id="@+id/delete_last_set"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:src="@drawable/baseline_delete_black_24"
+          android:background="?selectableItemBackground"/>
+
+    </LinearLayout>
 
     <Space
         android:layout_width="0dp"

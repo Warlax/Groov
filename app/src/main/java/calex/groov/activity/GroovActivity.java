@@ -45,8 +45,8 @@ import calex.groov.app.GroovApplication;
 import calex.groov.constant.Constants;
 import calex.groov.constant.Keys;
 import calex.groov.data.RepSet;
-import calex.groov.model.GroovRepository;
 import calex.groov.model.GroovViewModel;
+import calex.groov.worker.DeleteMostRecentSetWorker;
 import calex.groov.worker.ExportWorker;
 import calex.groov.worker.ImportWorker;
 
@@ -56,12 +56,12 @@ public class GroovActivity extends AppCompatActivity {
   private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 2;
   private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 3;
   private String importPath;
+  private View deleteLastSetView;
 
   public static Intent newIntent(Context context) {
     return new Intent(context, GroovActivity.class);
   }
 
-  @Inject GroovRepository groovRepository;
   @Inject Clock clock;
   @Inject WorkManager workManager;
 
@@ -86,6 +86,8 @@ public class GroovActivity extends AppCompatActivity {
     differentRepsButton.setText(Html.fromHtml(differentRepsButton.getText().toString(), 0));
     differentRepsButton.setOnClickListener(v -> onDifferentRepsButtonClicked());
     findViewById(R.id.menu).setOnClickListener(this::onMenuButtonClicked);
+    deleteLastSetView = findViewById(R.id.delete_last_set);
+    deleteLastSetView.setOnClickListener(v -> onDeleteLastSetButtonClicked());
 
     viewModel = ViewModelProviders.of(this).get(GroovViewModel.class);
 
@@ -128,6 +130,10 @@ public class GroovActivity extends AppCompatActivity {
         }
         break;
     }
+  }
+
+  private void onDeleteLastSetButtonClicked() {
+    workManager.enqueue(new OneTimeWorkRequest.Builder(DeleteMostRecentSetWorker.class).build());
   }
 
   private void onMenuButtonClicked(View menuButton) {
@@ -318,6 +324,7 @@ public class GroovActivity extends AppCompatActivity {
 
   private void onMostRecentSetChanged(Optional<RepSet> repSetOptional) {
     lastSetView.setVisibility(repSetOptional.isPresent() ? View.VISIBLE : View.GONE);
+    deleteLastSetView.setVisibility(repSetOptional.isPresent() ? View.VISIBLE : View.GONE);
     if (repSetOptional.isPresent()) {
       RepSet repSet = repSetOptional.get();
       lastSetView.setText(

@@ -2,6 +2,7 @@ package calex.groov.data;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
@@ -12,7 +13,7 @@ import java.util.Optional;
 @Dao
 public interface RepSetDao {
   @Insert
-  long insert(RepSet repSet);
+  long insert(RepSet set);
 
   @Insert
   void insert(List<RepSet> sets);
@@ -31,4 +32,7 @@ public interface RepSetDao {
 
   @Query("SELECT * FROM repset ORDER BY date ASC")
   List<RepSet> blockingAll();
+
+  @Delete
+  void delete(RepSet set);
 }

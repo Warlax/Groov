@@ -54,6 +54,12 @@
           android:resource="@xml/provider_paths"/>
     </provider>
 
+    <receiver android:name=".receiver.DateChangedReceiver">
+      <intent-filter>
+        <action android:name="android.intent.action.DATE_CHANGED"/>
+      </intent-filter>
+    </receiver>
+
   </application>
 
 </manifest>
