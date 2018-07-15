@@ -13,7 +13,9 @@
       android:supportsRtl="true"
       android:theme="@style/GroovTheme">
 
-    <activity android:name=".activity.GroovActivity">
+    <activity
+        android:name=".activity.GroovActivity"
+        android:launchMode="singleInstance">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
