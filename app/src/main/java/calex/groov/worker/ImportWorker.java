@@ -7,12 +7,10 @@ import com.opencsv.CSVReader;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -23,8 +21,6 @@ import calex.groov.data.RepSet;
 import calex.groov.model.GroovRepository;
 
 public class ImportWorker extends Worker {
-
-  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmm", Locale.US);
 
   @Inject GroovRepository repository;
 
@@ -46,13 +42,13 @@ public class ImportWorker extends Worker {
       List<RepSet> sets = new ArrayList<>(lines.size());
       for (String[] line : lines) {
         RepSet set = new RepSet();
-        set.setDate(DATE_FORMAT.parse(line[0]));
+        set.setDate(Date.from(Instant.ofEpochMilli(Long.parseLong(line[0]))));
         set.setReps(Integer.parseInt(line[1]));
         sets.add(set);
       }
       repository.insertSets(sets);
       return Result.SUCCESS;
-    } catch (IOException | ParseException e) {
+    } catch (IOException e) {
       e.printStackTrace();
       return Result.FAILURE;
     }

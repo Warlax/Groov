@@ -8,11 +8,8 @@ import com.opencsv.CSVWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -25,8 +22,6 @@ import calex.groov.model.GroovRepository;
 
 public class ExportWorker extends Worker {
 
-  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmm", Locale.US);
-
   @Inject GroovRepository repository;
 
   @NonNull
@@ -37,7 +32,7 @@ public class ExportWorker extends Worker {
     List<String[]> lines = new ArrayList<>(sets.size());
     for (RepSet set : sets) {
       lines.add(new String[] {
-          DATE_FORMAT.format(set.getDate()),
+          Long.toString(set.getDate().getTime()),
           Integer.toString(set.getReps()),
       });
     }
