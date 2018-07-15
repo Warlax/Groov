@@ -16,6 +16,8 @@ public class GroovDatabaseModule {
   @Provides
   @Singleton
   public GroovDatabase provideDatabase(Context context) {
-    return Room.databaseBuilder(context, GroovDatabase.class, FILE_NAME).build();
+    return Room.databaseBuilder(context, GroovDatabase.class, FILE_NAME)
+        .fallbackToDestructiveMigration()
+        .build();
   }
 }

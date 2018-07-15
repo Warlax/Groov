@@ -5,7 +5,7 @@ import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.TypeConverters;
 
 @Database(
-    version = 1,
+    version = 2,
     entities = {
         RepSet.class,
     },

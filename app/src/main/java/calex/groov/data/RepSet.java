@@ -1,11 +1,19 @@
 package calex.groov.data;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 import java.util.Date;
 
-@Entity
+@Entity(indices = {
+    @Index(
+        value = {
+            "date",
+            "reps",
+        },
+        unique = true),
+})
 public class RepSet {
   @PrimaryKey(autoGenerate = true)
   private long id;
