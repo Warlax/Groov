@@ -199,14 +199,14 @@ public class GroovActivity extends AppCompatActivity {
                 return;
               }
 
+              Uri uri = FileProvider.getUriForFile(
+                  GroovActivity.this,
+                  getApplicationContext().getPackageName() + ".calex.groov.provider",
+                  new File(path));
               Intent intent = new Intent();
-              intent.setAction(Intent.ACTION_VIEW);
-              intent.setDataAndType(
-                  FileProvider.getUriForFile(
-                      GroovActivity.this,
-                      getApplicationContext().getPackageName() + ".calex.groov.provider",
-                      new File(path)),
-                  "text/csv");
+              intent.setAction(Intent.ACTION_SEND);
+              intent.setType("text/csv");
+              intent.putExtra(Intent.EXTRA_STREAM, uri);
               intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
               try {
                 startActivity(intent);
