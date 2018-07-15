@@ -5,4 +5,5 @@ public interface Keys {
   String REMIND = "remind";
   String REPS = "reps";
   String PATH = "path";
+  String REST_DURATION = "rest_duration";
 }

@@ -29,7 +29,7 @@ public class GroovViewModel extends AndroidViewModel {
     return repository.mostRecentSetAsLiveData();
   }
 
-  public LiveData<Optional<Boolean>> remind() {
+  public LiveData<RemindSetting> remind() {
     return repository.remind();
   }
 
@@ -37,7 +37,7 @@ public class GroovViewModel extends AndroidViewModel {
     repository.recordCustomSet(reps);
   }
 
-  public void setRemind(boolean remind) {
-    repository.setRemind(remind);
+  public void setRemind(boolean remind, int restDurationMins) {
+    repository.setRemind(remind, restDurationMins);
   }
 }

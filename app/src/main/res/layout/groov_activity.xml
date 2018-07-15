@@ -73,6 +73,17 @@
         android:text="@string/did_different_reps"
         android:textAppearance="?android:attr/textAppearanceSmall"/>
 
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="8dp"/>
+
+    <CheckBox
+        android:id="@+id/remind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/remind_template"
+        android:textColor="@color/remind_checkbox_text_color"/>
+
   </LinearLayout>
 
   <ImageView

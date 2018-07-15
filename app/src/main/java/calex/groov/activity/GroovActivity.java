@@ -22,6 +22,8 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -46,6 +48,7 @@ import calex.groov.constant.Constants;
 import calex.groov.constant.Keys;
 import calex.groov.data.RepSet;
 import calex.groov.model.GroovViewModel;
+import calex.groov.model.RemindSetting;
 import calex.groov.worker.DeleteMostRecentSetWorker;
 import calex.groov.worker.ExportWorker;
 import calex.groov.worker.ImportWorker;
@@ -55,8 +58,6 @@ public class GroovActivity extends AppCompatActivity {
   private static final int SELECT_IMPORT_FILE_REQUEST_CODE = 1;
   private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 2;
   private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 3;
-  private String importPath;
-  private View deleteLastSetView;
 
   public static Intent newIntent(Context context) {
     return new Intent(context, GroovActivity.class);
@@ -70,6 +71,10 @@ public class GroovActivity extends AppCompatActivity {
   private TextView lastSetView;
   private Button didButton;
   private int reps = Constants.DEFAULT_REPS;
+  private String importPath;
+  private View deleteLastSetView;
+  private CheckBox remindView;
+  private CompoundButton.OnCheckedChangeListener doNothingCheckedChangeListener;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -88,12 +93,35 @@ public class GroovActivity extends AppCompatActivity {
     findViewById(R.id.menu).setOnClickListener(this::onMenuButtonClicked);
     deleteLastSetView = findViewById(R.id.delete_last_set);
     deleteLastSetView.setOnClickListener(v -> onDeleteLastSetButtonClicked());
+    remindView = findViewById(R.id.remind);
+    doNothingCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton checkBox, boolean checked) {
+        checkBox.setOnCheckedChangeListener(null);
+        if (checkBox.isChecked()) {
+          checkBox.setChecked(false);
+        } else {
+          checkBox.setChecked(true);
+        }
+        checkBox.setOnCheckedChangeListener(this);
+      }
+    };
+    remindView.setOnCheckedChangeListener(doNothingCheckedChangeListener);
+    remindView.setOnClickListener(v -> onRemindCheckBoxClicked());
 
     viewModel = ViewModelProviders.of(this).get(GroovViewModel.class);
 
     viewModel.repsToday().observe(
         this, reps -> repCountView.setText(String.format(Locale.getDefault(), "%d", reps)));
     viewModel.mostRecentSet().observe(this, this::onMostRecentSetChanged);
+    viewModel.remind().observe(this, this::onRemindChanged);
+  }
+
+  private void onRemindChanged(RemindSetting remindSetting) {
+    remindView.setOnCheckedChangeListener(null);
+    remindView.setChecked(remindSetting.enabled());
+    remindView.setOnCheckedChangeListener(doNothingCheckedChangeListener);
+    remindView.setText(getString(R.string.remind_template, remindSetting.intervalMins()));
   }
 
   @Override
@@ -134,6 +162,60 @@ public class GroovActivity extends AppCompatActivity {
 
   private void onDeleteLastSetButtonClicked() {
     workManager.enqueue(new OneTimeWorkRequest.Builder(DeleteMostRecentSetWorker.class).build());
+  }
+
+  private void onRemindCheckBoxClicked() {
+    new AlertDialog.Builder(this)
+        .setTitle(R.string.title_remind_me_dialog)
+        .setItems(R.array.remind_me_dialog_items, (dialogInterface, which) -> {
+          switch (which) {
+            case 0:
+              viewModel.setRemind(false, 0);
+              break;
+
+            case 1:
+              viewModel.setRemind(true, 5);
+              break;
+
+            case 2:
+              viewModel.setRemind(true, 10);
+              break;
+
+            case 3:
+              viewModel.setRemind(true, 15);
+              break;
+
+            case 4:
+              viewModel.setRemind(true, 20);
+              break;
+
+            case 5:
+              viewModel.setRemind(true, 30);
+              break;
+
+            case 6:
+              viewModel.setRemind(true, 45);
+              break;
+
+            case 7:
+              viewModel.setRemind(true, 60);
+              break;
+
+            case 8:
+              viewModel.setRemind(true, 90);
+              break;
+
+            case 9:
+              viewModel.setRemind(true, 120);
+              break;
+
+            case 10:
+              viewModel.setRemind(true, 180);
+              break;
+
+          }
+        })
+        .show();
   }
 
   private void onMenuButtonClicked(View menuButton) {

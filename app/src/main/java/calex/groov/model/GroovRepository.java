@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.service.quicksettings.TileService;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.widget.Toast;
 
 import java.util.List;
@@ -40,7 +39,7 @@ public class GroovRepository {
   private final SharedPreferences preferences;
   private final ChangeableSourceMediatorLiveData<Integer> repsToday;
   private final ChangeableSourceMediatorLiveData<Optional<RepSet>> mostRecentSet;
-  private final MutableLiveData<Optional<Boolean>> remind;
+  private final MutableLiveData<RemindSetting> remind;
   private final WorkManager workManager;
 
   @Inject
@@ -57,13 +56,7 @@ public class GroovRepository {
     mostRecentSet = new ChangeableSourceMediatorLiveData<>(Optional.empty());
     onDateChanged();
     remind = new MutableLiveData<>();
-    remind.setValue(Optional.empty());
-    preferences.registerOnSharedPreferenceChangeListener(
-        (sharedPreferences, key) -> {
-          if (TextUtils.equals(key, Keys.REMIND)) {
-            updateRemindFromPreferences();
-          }
-        });
+    remind.setValue(RemindSetting.builder().build());
   }
 
   public LiveData<Optional<RepSet>> mostRecentSetAsLiveData() {
@@ -126,11 +119,19 @@ public class GroovRepository {
     workManager.getStatusById(workRequest.getId()).observeForever(observer);
   }
 
-  public void setRemind(boolean remind) {
-    preferences.edit().putBoolean(Keys.REMIND, remind).apply();
+  public void setRemind(boolean enabled, int intervalMins) {
+    preferences.edit()
+        .putBoolean(Keys.REMIND, enabled)
+        .putInt(Keys.REST_DURATION, intervalMins)
+        .apply();
+    remind.setValue(
+        RemindSetting.builder()
+            .setEnabled(enabled)
+            .setIntervalMins(intervalMins)
+            .build());
   }
 
-  public LiveData<Optional<Boolean>> remind() {
+  public LiveData<RemindSetting> remind() {
     return remind;
   }
 
@@ -151,10 +152,6 @@ public class GroovRepository {
     repsToday.updateSource(database.sets().totalRepsAsLiveData(
         GroovUtil.todayStartTimestamp(), GroovUtil.todayEndTimestamp()));
     mostRecentSet.updateSource(database.sets().mostRecentAsLiveData());
-  }
-
-  private void updateRemindFromPreferences() {
-    remind.setValue(Optional.of(preferences.getBoolean(Keys.REMIND, false)));
   }
 
   private static class ChangeableSourceMediatorLiveData<T> extends MediatorLiveData<T> {

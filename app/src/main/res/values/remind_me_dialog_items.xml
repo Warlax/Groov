@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <array name="remind_me_dialog_items">
+    <item>@string/remind_me_disabled</item>
+    <item>@string/remind_me_5_minutes</item>
+    <item>@string/remind_me_10_minutes</item>
+    <item>@string/remind_me_15_minutes</item>
+    <item>@string/remind_me_20_minutes</item>
+    <item>@string/remind_me_30_minutes</item>
+    <item>@string/remind_me_45_minutes</item>
+    <item>@string/remind_me_1_hour</item>
+    <item>@string/remind_me_1_hour_and_a_half</item>
+    <item>@string/remind_me_2_hours</item>
+    <item>@string/remind_me_3_hours</item>
+  </array>
+</resources>
