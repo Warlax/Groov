@@ -8,6 +8,8 @@ import calex.groov.model.GroovViewModel;
 import calex.groov.service.GroovTileService;
 import calex.groov.service.RecordDefaultSetService;
 import calex.groov.service.UpdateAppWidgetService;
+import calex.groov.worker.ExportWorker;
+import calex.groov.worker.ImportWorker;
 import calex.groov.worker.RecordSetWorker;
 import dagger.Component;
 
@@ -27,5 +29,7 @@ public interface GroovApplicationComponent {
   void inject(RecordDefaultSetService service);
   void inject(UpdateAppWidgetService service);
   void inject(GroovTileService service);
+  void inject(ExportWorker worker);
+  void inject(ImportWorker worker);
 }
 

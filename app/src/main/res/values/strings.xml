@@ -11,4 +11,12 @@
   <string name="hint_reps">Reps</string>
   <string name="reps_added">+%d → %d today 💪</string>
   <string name="reps_today">%d today</string>
+  <string name="menu_import">Import…</string>
+  <string name="menu_export">Export…</string>
+  <string name="title_export_permissions_rationale">Export Sets</string>
+  <string name="message_export_permissions_rationale">In order to export your progress as a CSV file, the app will need storage access permissions. Don\'t worry, we will never read anything other than files you tell us to open.</string>
+  <string name="title_import_permissions_rationale">Import Sets</string>
+  <string name="message_import_permissions_rationale">In order to import a CSV file, the app will need storage access permissions. Don\'t worry, we will never read anything other than files you tell us to open.</string>
+  <string name="no_activity_found">There is no application on this device that can open CSV files. Your file has been saved to %s</string>
+  <string name="sets_imported">Sets imported successfully!</string>
 </resources>

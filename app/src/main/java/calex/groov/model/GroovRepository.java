@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -77,6 +78,10 @@ public class GroovRepository {
         GroovUtil.todayStartTimestamp(), GroovUtil.todayEndTimestamp());
   }
 
+  public List<RepSet> blockingAllSets() {
+    return database.sets().blockingAll();
+  }
+
   public void recordDefaultSet() {
     recordCustomSet(null);
   }
@@ -122,6 +127,10 @@ public class GroovRepository {
 
   public LiveData<Optional<Boolean>> remind() {
     return remind;
+  }
+
+  public void insertSets(List<RepSet> sets) {
+    database.sets().insert(sets);
   }
 
   private void updateRemindFromPreferences() {

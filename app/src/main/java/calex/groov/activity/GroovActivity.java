@@ -1,9 +1,19 @@
 package calex.groov.activity;
 
+import android.Manifest;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -13,8 +23,11 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.time.Clock;
 import java.util.Locale;
 import java.util.Optional;
@@ -22,14 +35,27 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
+import androidx.work.WorkStatus;
 import calex.groov.R;
 import calex.groov.app.GroovApplication;
 import calex.groov.constant.Constants;
+import calex.groov.constant.Keys;
 import calex.groov.data.RepSet;
 import calex.groov.model.GroovRepository;
 import calex.groov.model.GroovViewModel;
+import calex.groov.worker.ExportWorker;
+import calex.groov.worker.ImportWorker;
 
 public class GroovActivity extends AppCompatActivity {
+
+  private static final int SELECT_IMPORT_FILE_REQUEST_CODE = 1;
+  private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 2;
+  private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 3;
+  private String importPath;
 
   public static Intent newIntent(Context context) {
     return new Intent(context, GroovActivity.class);
@@ -37,6 +63,7 @@ public class GroovActivity extends AppCompatActivity {
 
   @Inject GroovRepository groovRepository;
   @Inject Clock clock;
+  @Inject WorkManager workManager;
 
   private GroovViewModel viewModel;
   private TextView repCountView;
@@ -58,12 +85,190 @@ public class GroovActivity extends AppCompatActivity {
     TextView differentRepsButton = findViewById(R.id.did_different_reps);
     differentRepsButton.setText(Html.fromHtml(differentRepsButton.getText().toString(), 0));
     differentRepsButton.setOnClickListener(v -> onDifferentRepsButtonClicked());
+    findViewById(R.id.menu).setOnClickListener(this::onMenuButtonClicked);
 
     viewModel = ViewModelProviders.of(this).get(GroovViewModel.class);
 
     viewModel.repsToday().observe(
         this, reps -> repCountView.setText(String.format(Locale.getDefault(), "%d", reps)));
     viewModel.mostRecentSet().observe(this, this::onMostRecentSetChanged);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    if (requestCode == SELECT_IMPORT_FILE_REQUEST_CODE) {
+      if (resultCode != RESULT_OK || data == null) {
+        return;
+      }
+
+      Uri uri = data.getData();
+      if (uri == null) {
+        return;
+      }
+
+      importPath = uri.toString();
+      importSets();
+    }
+    super.onActivityResult(requestCode, resultCode, data);
+  }
+
+  @Override
+  public void onRequestPermissionsResult(
+      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    switch (requestCode) {
+      case WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE:
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          exportSets();
+        }
+        break;
+
+      case READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE:
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          importSets();
+        }
+        break;
+    }
+  }
+
+  private void onMenuButtonClicked(View menuButton) {
+    PopupMenu popupMenu = new PopupMenu(this, menuButton);
+    popupMenu.inflate(R.menu.menu);
+    popupMenu.setOnMenuItemClickListener(menuItem -> {
+      switch (menuItem.getItemId()) {
+        case R.id.menu_import:
+          Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+          intent.addCategory(Intent.CATEGORY_OPENABLE);
+          intent.setType("text/*");
+          startActivityForResult(intent, SELECT_IMPORT_FILE_REQUEST_CODE);
+          break;
+
+        case R.id.menu_export:
+          exportSets();
+          break;
+      }
+      return true;
+    });
+    popupMenu.show();
+  }
+
+  private void exportSets() {
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        != PackageManager.PERMISSION_GRANTED) {
+      if (ActivityCompat.shouldShowRequestPermissionRationale(
+          this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        new AlertDialog.Builder(this)
+            .setTitle(R.string.title_export_permissions_rationale)
+            .setMessage(R.string.message_export_permissions_rationale)
+            .setPositiveButton(R.string.ok, (dialogInterface, which) -> {
+              ActivityCompat.requestPermissions(
+                  this,
+                  new String[] {
+                      Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                  },
+                  WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+            })
+            .setNegativeButton(R.string.cancel, null)
+            .show();
+      } else {
+        ActivityCompat.requestPermissions(
+            this,
+            new String[] {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            },
+            WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+      }
+      return;
+    }
+
+    WorkRequest workRequest = new OneTimeWorkRequest.Builder(ExportWorker.class).build();
+    workManager.enqueue(workRequest);
+    workManager.getStatusById(workRequest.getId()).observe(
+        this,
+        new Observer<WorkStatus>() {
+          @Override
+          public void onChanged(@Nullable WorkStatus workStatus) {
+            if (workStatus.getState().isFinished()) {
+              workManager.getStatusById(workRequest.getId()).removeObserver(this);
+              Data outputData = workStatus.getOutputData();
+              if (outputData == null) {
+                return;
+              }
+
+              String path = outputData.getString(Keys.PATH, null);
+              if (path == null) {
+                return;
+              }
+
+              Intent intent = new Intent();
+              intent.setAction(Intent.ACTION_VIEW);
+              intent.setDataAndType(
+                  FileProvider.getUriForFile(
+                      GroovActivity.this,
+                      getApplicationContext().getPackageName() + ".calex.groov.provider",
+                      new File(path)),
+                  "text/csv");
+              intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+              try {
+                startActivity(intent);
+              } catch (ActivityNotFoundException e) {
+                new AlertDialog.Builder(GroovActivity.this)
+                    .setMessage(getString(R.string.no_activity_found, path))
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+              }
+            }
+          }
+        });
+  }
+
+  private void importSets() {
+    if (importPath == null) {
+      return;
+    }
+
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        != PackageManager.PERMISSION_GRANTED) {
+      if (ActivityCompat.shouldShowRequestPermissionRationale(
+          this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        new AlertDialog.Builder(this)
+            .setTitle(R.string.title_import_permissions_rationale)
+            .setMessage(R.string.message_import_permissions_rationale)
+            .setPositiveButton(R.string.ok, (dialogInterface, which) -> {
+              ActivityCompat.requestPermissions(
+                  this,
+                  new String[] {
+                      Manifest.permission.READ_EXTERNAL_STORAGE,
+                  },
+                  READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+            })
+            .setNegativeButton(R.string.cancel, null)
+            .show();
+      } else {
+        ActivityCompat.requestPermissions(
+            this,
+            new String[] {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+            },
+            READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+      }
+      return;
+    }
+
+    WorkRequest workRequest = new OneTimeWorkRequest.Builder(ImportWorker.class)
+        .setInputData(new Data.Builder().putString(Keys.PATH, importPath).build())
+        .build();
+    workManager.enqueue(workRequest);
+    workManager.getStatusById(workRequest.getId()).observe(
+        this,
+        new Observer<WorkStatus>() {
+          @Override
+          public void onChanged(@Nullable WorkStatus workStatus) {
+            if (workStatus.getState().isFinished()) {
+              workManager.getStatusById(workRequest.getId()).removeObserver(this);
+              Toast.makeText(GroovActivity.this, R.string.sets_imported, Toast.LENGTH_SHORT).show();
+            }
+          }
+        });
   }
 
   private void onDidButtonClicked() {
