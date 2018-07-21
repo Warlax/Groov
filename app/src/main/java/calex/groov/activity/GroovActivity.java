@@ -174,42 +174,34 @@ public class GroovActivity extends AppCompatActivity {
               break;
 
             case 1:
-              viewModel.setRemind(true, 5);
-              break;
-
-            case 2:
-              viewModel.setRemind(true, 10);
-              break;
-
-            case 3:
               viewModel.setRemind(true, 15);
               break;
 
-            case 4:
+            case 2:
               viewModel.setRemind(true, 20);
               break;
 
-            case 5:
+            case 3:
               viewModel.setRemind(true, 30);
               break;
 
-            case 6:
+            case 4:
               viewModel.setRemind(true, 45);
               break;
 
-            case 7:
+            case 5:
               viewModel.setRemind(true, 60);
               break;
 
-            case 8:
+            case 6:
               viewModel.setRemind(true, 90);
               break;
 
-            case 9:
+            case 7:
               viewModel.setRemind(true, 120);
               break;
 
-            case 10:
+            case 8:
               viewModel.setRemind(true, 180);
               break;
 

@@ -2,8 +2,6 @@
 <resources>
   <array name="remind_me_dialog_items">
     <item>@string/remind_me_disabled</item>
-    <item>@string/remind_me_5_minutes</item>
-    <item>@string/remind_me_10_minutes</item>
     <item>@string/remind_me_15_minutes</item>
     <item>@string/remind_me_20_minutes</item>
     <item>@string/remind_me_30_minutes</item>

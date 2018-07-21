@@ -22,8 +22,6 @@
   <string name="remind_template">Remind me every %d minutes</string>
   <string name="title_remind_me_dialog">Remind me</string>
   <string name="remind_me_disabled">Do not remind</string>
-  <string name="remind_me_5_minutes">Every 5 minutes</string>
-  <string name="remind_me_10_minutes">Every 10 minutes</string>
   <string name="remind_me_15_minutes">Every 15 minutes</string>
   <string name="remind_me_20_minutes">Every 20 minutes</string>
   <string name="remind_me_30_minutes">Every half an hour</string>
@@ -32,4 +30,6 @@
   <string name="remind_me_1_hour_and_a_half">Every hour and half</string>
   <string name="remind_me_2_hours">Every two hours</string>
   <string name="remind_me_3_hours">Every three hours</string>
+  <string name="reminder_notification_text">Time to do another set!</string>
+  <string name="notification_channel_name">Reminders</string>
 </resources>
