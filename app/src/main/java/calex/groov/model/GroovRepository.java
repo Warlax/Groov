@@ -13,14 +13,12 @@ import android.widget.Toast;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
@@ -37,7 +35,6 @@ import calex.groov.worker.ReminderWorker;
 @Singleton
 public class GroovRepository {
 
-  private static final String REMINDER_TAG = "reminder";
   private final Context context;
   private final GroovDatabase database;
   private final SharedPreferences preferences;
@@ -134,17 +131,19 @@ public class GroovRepository {
             .setIntervalMins(intervalMins)
             .build());
 
-    workManager.cancelAllWorkByTag(REMINDER_TAG);
     if (enabled) {
-      workManager.enqueue(
-          new PeriodicWorkRequest.Builder(ReminderWorker.class, intervalMins, TimeUnit.MINUTES)
-              .addTag(REMINDER_TAG)
-              .build());
+      ReminderWorker.schedule(workManager, intervalMins);
+    } else {
+      ReminderWorker.cancel(workManager);
     }
   }
 
-  public LiveData<RemindSetting> remind() {
+  public LiveData<RemindSetting> remindAsLiveData() {
     return remind;
+  }
+
+  public RemindSetting remind() {
+    return remind.getValue() != null ? remind.getValue() : RemindSetting.builder().build();
   }
 
   public void insertSets(List<RepSet> sets) {

@@ -13,6 +13,7 @@ import calex.groov.worker.DeleteMostRecentSetWorker;
 import calex.groov.worker.ExportWorker;
 import calex.groov.worker.ImportWorker;
 import calex.groov.worker.RecordSetWorker;
+import calex.groov.worker.ReminderWorker;
 import dagger.Component;
 
 @Singleton
@@ -35,5 +36,6 @@ public interface GroovApplicationComponent {
   void inject(ImportWorker worker);
   void inject(DeleteMostRecentSetWorker worker);
   void inject(DateChangedReceiver receiver);
+  void inject(ReminderWorker worker);
 }
 

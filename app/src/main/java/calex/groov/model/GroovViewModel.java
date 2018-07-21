@@ -30,7 +30,7 @@ public class GroovViewModel extends AndroidViewModel {
   }
 
   public LiveData<RemindSetting> remind() {
-    return repository.remind();
+    return repository.remindAsLiveData();
   }
 
   public void recordSet(int reps) {
