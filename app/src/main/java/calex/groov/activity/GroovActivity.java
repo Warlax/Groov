@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -161,7 +162,27 @@ public class GroovActivity extends AppCompatActivity {
   }
 
   private void onDeleteLastSetButtonClicked() {
-    workManager.enqueue(new OneTimeWorkRequest.Builder(DeleteMostRecentSetWorker.class).build());
+    WorkRequest workRequest = new OneTimeWorkRequest.Builder(DeleteMostRecentSetWorker.class)
+        .build();
+    workManager.enqueue(workRequest);
+    workManager.getStatusById(workRequest.getId()).observe(
+        this,
+        workStatus -> {
+          if (workStatus.getState().isFinished()) {
+            Data outputData = workStatus.getOutputData();
+            if (outputData != null) {
+              int reps = outputData.getInt(Keys.REPS, -1);
+              long timestamp = outputData.getLong(Keys.TIMESTAMP, -1);
+              if (reps == -1 || timestamp == -1) {
+                return;
+              }
+
+              Snackbar.make(remindView, R.string.most_recent_set_deleted, Snackbar.LENGTH_LONG)
+                  .setAction(R.string.undo, v -> viewModel.recordSet(reps, timestamp))
+                  .show();
+            }
+          }
+        });
   }
 
   private void onRemindCheckBoxClicked() {

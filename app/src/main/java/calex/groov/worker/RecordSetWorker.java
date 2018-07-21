@@ -14,6 +14,7 @@ import calex.groov.app.GroovApplication;
 import calex.groov.constant.Constants;
 import calex.groov.constant.Keys;
 import calex.groov.data.GroovDatabase;
+import calex.groov.data.GroovTypeConverters;
 import calex.groov.data.RepSet;
 import calex.groov.util.GroovUtil;
 
@@ -35,9 +36,11 @@ public class RecordSetWorker extends Worker {
         reps = Constants.DEFAULT_REPS;
       }
     }
+    long timestamp = getInputData().getLong(Keys.TIMESTAMP, -1);
 
     RepSet set = new RepSet();
-    set.setDate(new Date(clock.millis()));
+    set.setDate(
+        timestamp != -1 ? GroovTypeConverters.fromTimestamp(timestamp) : new Date(clock.millis()));
     set.setReps(reps);
     database.sets().insert(set);
 

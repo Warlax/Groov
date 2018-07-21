@@ -34,7 +34,11 @@ public class GroovViewModel extends AndroidViewModel {
   }
 
   public void recordSet(int reps) {
-    repository.recordCustomSet(reps);
+    repository.recordCustomSet(reps, null);
+  }
+
+  public void recordSet(int reps, long timestamp) {
+    repository.recordCustomSet(reps, timestamp);
   }
 
   public void setRemind(boolean remind, int restDurationMins) {

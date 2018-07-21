@@ -32,4 +32,6 @@
   <string name="remind_me_3_hours">Every three hours</string>
   <string name="reminder_notification_text">Time to do another set!</string>
   <string name="notification_channel_name">Reminders</string>
+  <string name="most_recent_set_deleted">Previous set deleted</string>
+  <string name="undo">Undo</string>
 </resources>

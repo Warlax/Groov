@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.service.quicksettings.TileService;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.widget.Toast;
 
 import java.util.List;
@@ -82,13 +83,16 @@ public class GroovRepository {
   }
 
   public void recordDefaultSet() {
-    recordCustomSet(null);
+    recordCustomSet(null, null);
   }
 
-  public void recordCustomSet(@Nullable Integer reps) {
+  public void recordCustomSet(@Nullable Integer reps, @Nullable Long timestamp) {
     Data.Builder inputDataBuilder = new Data.Builder();
     if (reps != null) {
       inputDataBuilder.putInt(Keys.REPS, reps);
+    }
+    if (timestamp != null) {
+      inputDataBuilder.putLong(Keys.TIMESTAMP, timestamp);
     }
     WorkRequest workRequest = new OneTimeWorkRequest.Builder(RecordSetWorker.class)
         .setInputData(inputDataBuilder.build())
@@ -104,11 +108,13 @@ public class GroovRepository {
           int repsRecorded = outputData.getInt(Keys.REPS, 0);
           int repsToday = outputData.getInt(Keys.COUNT, 0);
 
-          Toast.makeText(
-              context,
-              context.getResources().getString(R.string.reps_added, repsRecorded, repsToday),
-              Toast.LENGTH_SHORT)
-              .show();
+          if (timestamp == null) {
+            Toast.makeText(
+                context,
+                context.getResources().getString(R.string.reps_added, repsRecorded, repsToday),
+                Toast.LENGTH_SHORT)
+                .show();
+          }
 
           GroovAppWidgetProvider.sendUpdate(context, repsRecorded, repsToday);
 
@@ -150,13 +156,14 @@ public class GroovRepository {
     database.sets().insert(sets);
   }
 
-  public void blockingDeleteMostRecent() {
+  public RepSet blockingDeleteMostRecent() {
     Optional<RepSet> setOptional = blockingMostRecentSet();
     if (!setOptional.isPresent()) {
-      return;
+      return null;
     }
 
     database.sets().delete(setOptional.get());
+    return setOptional.get();
   }
 
   public void onDateChanged() {

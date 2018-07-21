@@ -6,4 +6,5 @@ public interface Keys {
   String REPS = "reps";
   String PATH = "path";
   String REST_DURATION = "rest_duration";
+  String TIMESTAMP = "date";
 }
