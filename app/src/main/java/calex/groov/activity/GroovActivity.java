@@ -30,6 +30,9 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.common.base.Optional;
 
 import java.io.File;
@@ -83,6 +86,10 @@ public class GroovActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.groov_activity);
     ((GroovApplication) getApplication()).getComponent().inject(this);
+
+    MobileAds.initialize(this, Constants.ADMOB_APP_ID);
+    AdView adView = findViewById(R.id.ad);
+    adView.loadAd(new AdRequest.Builder().build());
 
     repCountView = findViewById(R.id.count);
     lastSetView = findViewById(R.id.last_set);

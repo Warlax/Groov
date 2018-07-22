@@ -34,4 +34,5 @@
   <string name="notification_channel_name">Reminders</string>
   <string name="most_recent_set_deleted">Previous set deleted</string>
   <string name="undo">Undo</string>
+  <string name="ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>
