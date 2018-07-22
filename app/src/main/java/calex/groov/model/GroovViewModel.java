@@ -5,7 +5,7 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
-import java.util.Optional;
+import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 

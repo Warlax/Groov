@@ -3,29 +3,28 @@ package calex.groov.util;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 
 public class GroovUtil {
   public static Date todayStartTimestamp() {
-    return Date.from(
-        LocalDateTime
-            .ofInstant(
-                new Date().toInstant(), ZoneId.systemDefault())
-            .with(LocalTime.MIN)
-            .atZone(ZoneId
-                .systemDefault())
-            .toInstant());
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(System.currentTimeMillis());
+    calendar.set(Calendar.HOUR_OF_DAY, 0);
+    calendar.set(Calendar.MINUTE, 0);
+    calendar.set(Calendar.SECOND, 0);
+    calendar.set(Calendar.MILLISECOND, 0);
+    return new Date(calendar.getTimeInMillis());
   }
 
   public static Date todayEndTimestamp() {
-    return Date.from(
-        LocalDateTime
-            .ofInstant(
-                new Date().toInstant(), ZoneId.systemDefault())
-            .with(LocalTime.MAX)
-            .atZone(ZoneId
-                .systemDefault())
-            .toInstant());
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(System.currentTimeMillis());
+    calendar.set(Calendar.HOUR_OF_DAY, 23);
+    calendar.set(Calendar.MINUTE, 59);
+    calendar.set(Calendar.SECOND, 59);
+    calendar.set(Calendar.MILLISECOND, 999);
+    return new Date(calendar.getTimeInMillis());
   }
 
   private GroovUtil() {}

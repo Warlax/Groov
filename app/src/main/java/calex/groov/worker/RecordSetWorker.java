@@ -2,9 +2,9 @@ package calex.groov.worker;
 
 import android.support.annotation.NonNull;
 
-import java.time.Clock;
+import com.google.common.base.Optional;
+
 import java.util.Date;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -13,6 +13,7 @@ import androidx.work.Worker;
 import calex.groov.app.GroovApplication;
 import calex.groov.constant.Constants;
 import calex.groov.constant.Keys;
+import calex.groov.data.Clock;
 import calex.groov.data.GroovDatabase;
 import calex.groov.data.GroovTypeConverters;
 import calex.groov.data.RepSet;

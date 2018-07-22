@@ -9,7 +9,7 @@
   <string name="cancel">Cancel</string>
   <string name="error_less_than_one_rep">Sorry, cannot do less than one rep.</string>
   <string name="hint_reps">Reps</string>
-  <string name="reps_added">+%d → %d today 💪</string>
+  <string name="reps_added">+%d → %d today, good work!</string>
   <string name="reps_today">%d today</string>
   <string name="menu_import">Import…</string>
   <string name="menu_export">Export…</string>

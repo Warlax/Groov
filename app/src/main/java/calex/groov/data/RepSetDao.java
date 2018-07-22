@@ -6,9 +6,10 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
+import com.google.common.base.Optional;
+
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Dao
 public interface RepSetDao {

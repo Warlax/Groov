@@ -7,13 +7,14 @@ import android.arch.lifecycle.Observer;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.service.quicksettings.TileService;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
+
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -55,7 +56,7 @@ public class GroovRepository {
     this.preferences = preferences;
     this.workManager = workManager;
     repsToday = new ChangeableSourceMediatorLiveData<>(0);
-    mostRecentSet = new ChangeableSourceMediatorLiveData<>(Optional.empty());
+    mostRecentSet = new ChangeableSourceMediatorLiveData<>(Optional.absent());
     onDateChanged();
     remind = new MutableLiveData<>();
     remind.setValue(RemindSetting.builder().build());
@@ -118,8 +119,10 @@ public class GroovRepository {
 
           GroovAppWidgetProvider.sendUpdate(context, repsRecorded, repsToday);
 
-          TileService.requestListeningState(
-              context, new ComponentName(context, GroovTileService.class));
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            TileService.requestListeningState(
+                context, new ComponentName(context, GroovTileService.class));
+          }
         }
       }
     };

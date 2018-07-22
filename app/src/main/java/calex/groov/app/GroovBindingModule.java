@@ -1,7 +1,6 @@
 package calex.groov.app;
 
-import java.time.Clock;
-
+import calex.groov.data.Clock;
 import calex.groov.data.GroovClock;
 import dagger.Binds;
 import dagger.Module;
