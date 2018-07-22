@@ -9,7 +9,7 @@ import java.util.Date;
 public class GroovUtil {
   public static Date todayStartTimestamp() {
     Calendar calendar = Calendar.getInstance();
-    calendar.setTimeInMillis(System.currentTimeMillis());
+    calendar.setTime(new Date());
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);
@@ -19,7 +19,7 @@ public class GroovUtil {
 
   public static Date todayEndTimestamp() {
     Calendar calendar = Calendar.getInstance();
-    calendar.setTimeInMillis(System.currentTimeMillis());
+    calendar.setTime(new Date());
     calendar.set(Calendar.HOUR_OF_DAY, 23);
     calendar.set(Calendar.MINUTE, 59);
     calendar.set(Calendar.SECOND, 59);
