@@ -30,6 +30,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -48,6 +49,7 @@ import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
 import calex.groov.R;
 import calex.groov.app.GroovApplication;
+import calex.groov.billing.Billing;
 import calex.groov.constant.Constants;
 import calex.groov.constant.Keys;
 import calex.groov.data.Clock;
@@ -70,6 +72,7 @@ public class GroovActivity extends AppCompatActivity {
 
   @Inject Clock clock;
   @Inject WorkManager workManager;
+  @Inject Billing billing;
 
   private GroovViewModel viewModel;
   private TextView repCountView;
@@ -88,8 +91,27 @@ public class GroovActivity extends AppCompatActivity {
     ((GroovApplication) getApplication()).getComponent().inject(this);
 
     MobileAds.initialize(this, Constants.ADMOB_APP_ID);
+    View adContainer = findViewById(R.id.ad_container);
+
+    TextView disableAdsView = findViewById(R.id.disable_ads);
+    disableAdsView.setText(HtmlCompat.fromHtml(disableAdsView.getText().toString(), 0));
+    disableAdsView.setOnClickListener(v -> onDisableAdsButtonClicked());
+
+    adContainer.setVisibility(View.GONE);
     AdView adView = findViewById(R.id.ad);
-    adView.loadAd(new AdRequest.Builder().build());
+    adView.setAdListener(new AdListener() {
+      @Override
+      public void onAdLoaded() {
+        adContainer.setVisibility(View.VISIBLE);
+      }
+    });
+    billing.adsFree().observe(this, adsFree -> {
+      if (adsFree != null && adsFree) {
+        adContainer.setVisibility(View.GONE);
+      } else {
+        adView.loadAd(new AdRequest.Builder().build());
+      }
+    });
 
     repCountView = findViewById(R.id.count);
     lastSetView = findViewById(R.id.last_set);
@@ -124,6 +146,10 @@ public class GroovActivity extends AppCompatActivity {
         this, reps -> repCountView.setText(String.format(Locale.getDefault(), "%d", reps)));
     viewModel.mostRecentSet().observe(this, this::onMostRecentSetChanged);
     viewModel.remind().observe(this, this::onRemindChanged);
+  }
+
+  private void onDisableAdsButtonClicked() {
+    billing.launchAdsFreePurchaseFlow(this);
   }
 
   private void onRemindChanged(RemindSetting remindSetting) {
