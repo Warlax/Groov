@@ -36,4 +36,6 @@
   <string name="undo">Undo</string>
   <string name="ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
   <string name="disable_ads">&lt;u&gt;(disable ads)&lt;/u&gt;</string>
+  <string name="menu_history">History</string>
+  <string name="history">History</string>
 </resources>

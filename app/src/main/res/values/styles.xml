@@ -1,11 +1,18 @@
 <resources>
-
-  <!-- Base application theme. -->
-  <style name="GroovTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+  <style name="Groov" parent="Theme.AppCompat.DayNight">
     <!-- Customize your theme here. -->
     <item name="colorPrimary">@color/colorPrimary</item>
     <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     <item name="colorAccent">@color/colorAccent</item>
   </style>
+
+  <style name="Groov.Activity"/>
+
+  <style name="Groov.Activity.Groov">
+    <item name="windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+  </style>
+
+  <style name="Groov.Activity.History"/>
 
 </resources>

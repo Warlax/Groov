@@ -3,8 +3,10 @@ package calex.groov.app;
 import javax.inject.Singleton;
 
 import calex.groov.activity.GroovActivity;
+import calex.groov.activity.HistoryActivity;
 import calex.groov.data.GroovDatabaseModule;
 import calex.groov.model.GroovViewModel;
+import calex.groov.model.HistoryViewModel;
 import calex.groov.receiver.DateChangedReceiver;
 import calex.groov.service.GroovTileService;
 import calex.groov.service.RecordDefaultSetService;
@@ -27,15 +29,21 @@ import dagger.Component;
 @GroovApplicationScope
 public interface GroovApplicationComponent {
   void inject(GroovActivity activity);
-  void inject(RecordSetWorker worker);
-  void inject(GroovViewModel viewModel);
+  void inject(HistoryActivity activity);
+
   void inject(RecordDefaultSetService service);
   void inject(UpdateAppWidgetService service);
   void inject(GroovTileService service);
+
+  void inject(DateChangedReceiver receiver);
+
+  void inject(GroovViewModel viewModel);
+  void inject(HistoryViewModel viewModel);
+
+  void inject(RecordSetWorker worker);
   void inject(ExportWorker worker);
   void inject(ImportWorker worker);
   void inject(DeleteMostRecentSetWorker worker);
-  void inject(DateChangedReceiver receiver);
   void inject(ReminderWorker worker);
 }
 

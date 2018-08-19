@@ -34,6 +34,7 @@ import calex.groov.service.GroovTileService;
 import calex.groov.util.GroovUtil;
 import calex.groov.worker.RecordSetWorker;
 import calex.groov.worker.ReminderWorker;
+import io.reactivex.Observable;
 
 @Singleton
 public class GroovRepository {
@@ -181,6 +182,10 @@ public class GroovRepository {
     repsToday.updateSource(database.sets().totalRepsAsLiveData(
         GroovUtil.todayStartTimestamp(), GroovUtil.todayEndTimestamp()));
     mostRecentSet.updateSource(database.sets().mostRecentAsLiveData());
+  }
+
+  public LiveData<List<RepSet>> allSetsAsLiveData() {
+    return database.sets().allAsLiveData();
   }
 
   private static class ChangeableSourceMediatorLiveData<T> extends MediatorLiveData<T> {

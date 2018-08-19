@@ -270,6 +270,10 @@ public class GroovActivity extends AppCompatActivity {
     popupMenu.inflate(R.menu.menu);
     popupMenu.setOnMenuItemClickListener(menuItem -> {
       switch (menuItem.getItemId()) {
+        case R.id.menu_history:
+          startActivity(HistoryActivity.newIntent(this));
+          break;
+
         case R.id.menu_import:
           Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
           intent.addCategory(Intent.CATEGORY_OPENABLE);

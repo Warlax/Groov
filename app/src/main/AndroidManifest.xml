@@ -11,16 +11,22 @@
       android:label="@string/app_name"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:supportsRtl="true"
-      android:theme="@style/GroovTheme">
+      android:theme="@style/Groov">
 
     <activity
         android:name=".activity.GroovActivity"
-        android:launchMode="singleInstance">
+        android:launchMode="singleInstance"
+        android:theme="@style/Groov.Activity.Groov">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+
+    <activity
+        android:name=".activity.HistoryActivity"
+        android:theme="@style/Groov.Activity.History"
+        android:parentActivityName=".activity.GroovActivity"/>
 
     <receiver android:name=".receiver.GroovAppWidgetProvider" >
       <intent-filter>

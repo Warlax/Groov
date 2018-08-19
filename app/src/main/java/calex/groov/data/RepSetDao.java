@@ -11,6 +11,8 @@ import com.google.common.base.Optional;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.Observable;
+
 @Dao
 public interface RepSetDao {
   @Insert
@@ -33,6 +35,9 @@ public interface RepSetDao {
 
   @Query("SELECT * FROM repset ORDER BY date ASC")
   List<RepSet> blockingAll();
+
+  @Query("SELECT * FROM repset ORDER BY date ASC")
+  LiveData<List<RepSet>> allAsLiveData();
 
   @Delete
   void delete(RepSet set);
