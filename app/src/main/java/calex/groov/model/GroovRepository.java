@@ -131,6 +131,10 @@ public class GroovRepository {
       }
     };
     workManager.getStatusById(workRequest.getId()).observeForever(observer);
+
+    if (remind.getValue() != null && remind.getValue().enabled()) {
+      ReminderWorker.schedule(workManager, remind.getValue().intervalMins());
+    }
   }
 
   public void setRemind(boolean enabled, int intervalMins) {
