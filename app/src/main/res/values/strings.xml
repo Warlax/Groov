@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">Groov</string>
+  <string name="app_name">Reps</string>
   <string name="today">today</string>
   <string name="did_button_template">+%d reps</string>
   <string name="did_different_reps">&lt;u&gt;Add different number of reps&lt;/u&gt;</string>
