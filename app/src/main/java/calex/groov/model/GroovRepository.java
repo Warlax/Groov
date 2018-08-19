@@ -25,6 +25,7 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
 import calex.groov.R;
+import calex.groov.constant.Constants;
 import calex.groov.constant.Keys;
 import calex.groov.data.GroovDatabase;
 import calex.groov.data.RepSet;
@@ -59,7 +60,10 @@ public class GroovRepository {
     mostRecentSet = new ChangeableSourceMediatorLiveData<>(Optional.absent());
     onDateChanged();
     remind = new MutableLiveData<>();
-    remind.setValue(RemindSetting.builder().build());
+    remind.setValue(RemindSetting.builder()
+        .setEnabled(preferences.getBoolean(Keys.REMIND, false))
+        .setIntervalMins(preferences.getInt(Keys.REST_DURATION, Constants.DEFAULT_REST_MINS))
+        .build());
   }
 
   public LiveData<Optional<RepSet>> mostRecentSetAsLiveData() {
