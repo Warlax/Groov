@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 
@@ -49,12 +50,15 @@ public class ReminderWorker extends Worker {
     ((GroovApplication) context).getComponent().inject(this);
     NotificationManager notificationManager =
         (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-    if (notificationManager.getNotificationChannel(REMINDERS_CHANNEL_ID) == null) {
-      NotificationChannel channel = new NotificationChannel(
-          REMINDERS_CHANNEL_ID,
-          context.getString(R.string.notification_channel_name),
-          NotificationManager.IMPORTANCE_DEFAULT);
-      notificationManager.createNotificationChannel(channel);
+
+    if (Build.VERSION.SDK_INT >= 26) {
+      if (notificationManager.getNotificationChannel(REMINDERS_CHANNEL_ID) == null) {
+        NotificationChannel channel = new NotificationChannel(
+            REMINDERS_CHANNEL_ID,
+            context.getString(R.string.notification_channel_name),
+            NotificationManager.IMPORTANCE_DEFAULT);
+        notificationManager.createNotificationChannel(channel);
+      }
     }
 
     notificationManager.notify(
